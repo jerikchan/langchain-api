@@ -26,14 +26,14 @@ const callbackManager = CallbackManager.fromHandlers({
 
 const llm = new OpenAI({
   temperature: 0.9,
-  openAIApiKey: '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', // In Node.js defaults to process.env.OPENAI_API_KEY
+  openAIApiKey: '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', // In Node.js defaults to process.env.OPENAI_API_KEY
   // modelName: 'text-davinci-003',
   callbackManager,
   // timeout: 10 * 1000,
   maxRetries: 0,
 });
 
-const getDocs = async (path) => {
+const getDocs = async (path: string) => {
   // 加载文档
   const doc_url = resolvePath(path);
   const loader = new PDFLoader(doc_url, {
@@ -46,7 +46,7 @@ const getDocs = async (path) => {
 
   // 分割文档
   const text_splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 600,
+    chunkSize: 500,
     chunkOverlap: 0,
   });
   const split_docs = await text_splitter.splitDocuments(docs);
@@ -75,6 +75,11 @@ export class LangchainService {
     return 'hello test';
   }
 
+  async docs() {
+    const split_docs = await getDocs("2a99da93-d51b-494a-884e-c9cd844ba4f5_大理-沙溪逛吃小分队.pdf");
+    return split_docs.map(doc => doc.pageContent).join("\n\n==========\n\n");
+  }
+
   // 问答
   async answer(question: string = 'What would be a good company name a company that makes colorful socks?'): Promise<string> {
     console.log(`Question: ${question}`);
@@ -96,7 +101,7 @@ export class LangchainService {
 
   // 总结
   async summarize(): Promise<string> {
-    const split_docs = getDocs("2a99da93-d51b-494a-884e-c9cd844ba4f5_大理-沙溪逛吃小分队.pdf");
+    const split_docs = await getDocs("2a99da93-d51b-494a-884e-c9cd844ba4f5_大理-沙溪逛吃小分队.pdf");
 
     const chain = loadSummarizationChain(llm, { type: 'map_reduce'} );
     const response = await chain.call({
@@ -116,7 +121,7 @@ export class LangchainService {
     const docs = await getDocs('2a99da93-d51b-494a-884e-c9cd844ba4f5_大理-沙溪逛吃小分队.pdf');
     /* Create the vectorstore */
     const vectorStore = await HNSWLib.fromDocuments(docs, new OpenAIEmbeddings({
-      openAIApiKey: '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',
+      openAIApiKey: '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',
     }));
     /* Create the chain */
     const chain = ConversationalRetrievalQAChain.fromLLM(
@@ -128,6 +133,7 @@ export class LangchainService {
     );
     try {
       /* Ask it a question */
+      console.log('thinking...');
       const res = await chain.call({ question, chat_history });
       return res.text;
     } catch (error) {
