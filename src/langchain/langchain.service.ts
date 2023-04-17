@@ -28,7 +28,7 @@ const callbackManager = CallbackManager.fromHandlers({
 
 const llm = new OpenAI({
   temperature: 0.9,
-  openAIApiKey: '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', // In Node.js defaults to process.env.OPENAI_API_KEY
+  openAIApiKey: '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', // In Node.js defaults to process.env.OPENAI_API_KEY
   // modelName: 'text-davinci-003',
   modelName: 'gpt-3.5-turbo',
   callbackManager,
@@ -162,7 +162,7 @@ export class LangchainService {
     const docs = await getDocsDocx('2a99da93-d51b-494a-884e-c9cd844ba4f5_大理-沙溪逛吃小分队-已转换.docx');
     /* Create the vectorstore */
     const vectorStore = await HNSWLib.fromDocuments(docs, new OpenAIEmbeddings({
-      openAIApiKey: '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',
+      openAIApiKey: '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',
       verbose: true,
     }));
     /* Create the chain */
